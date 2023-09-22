@@ -6,6 +6,8 @@
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/sknr/goroutine?style=flat)
 ![GitHub](https://img.shields.io/github/license/sknr/goroutine)
 
+Original Repo: https://github.com/sknr/goroutine
+
 A goroutine wrapper for creating and running panic safe goroutines.
 
 The purpose of this package is to provide a simple wrapper function for goroutines, which automatically handles panics
@@ -13,11 +15,11 @@ in goroutines. Starting a new goroutine without taking care of recovering from a
 could crash the whole application.
 
 The `Go` function runs an arbitrary function `f` in a separate goroutine, which handles the recovering from panic within
-that goroutine.
+that g.
 
 ## Installation
 
-`go get -u github.com/sknr/goroutine`
+`go get -u github.com/bmbstack/g`
 
 ## Usage (with dot import)
 
@@ -37,7 +39,7 @@ Go(func() {
 })
 ```
 
-in order to create a panic safe goroutine.
+in order to create a panic safe g.
 
 Functions with multiple input params must be wrapped within an anonymous function.
 
@@ -66,13 +68,13 @@ package main
 
 import (
     "fmt"
-    "github.com/sknr/goroutine"
+    "github.com/bmbstack/g"
     "log"
 )
 
 func init() {
     // Override the default recover function.
-    goroutine.SetDefaultRecoverFunc(func(v interface{}, done chan<- error) {
+    g.SetDefaultRecoverFunc(func(v interface{}, done chan<- error) {
         log.Printf("%v", v)
         done <- fmt.Errorf("panic in goroutine successfully recovered")
     })
@@ -80,7 +82,7 @@ func init() {
 
 func main() {
     for i := -3; i <= 3; i++ {
-        err := <-goroutine.Go(func() {
+        err := <-g.Go(func() {
             func(a, b int) {
                 log.Println(a, "/", b, "=", a/b)
             }(10, i)
@@ -102,7 +104,7 @@ simply set a custom recover function of type `RecoverFunc` with `SetDefaultRecov
 If you need different recover functions for different goroutines, you can simply call
 
 ```
-goroutine.New(func() {
+g.New(func() {
     func(name string) {
         panic(fmt.Sprintln("Hallo", name))
     }("Welt")
